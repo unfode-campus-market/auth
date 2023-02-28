@@ -3,14 +3,14 @@ import bcrypt from "bcrypt";
 
 // An interface that describes the properties required to create
 // a new user.
-interface UserAttrs {
+interface UserAttributes {
   email: string;
   password: string;
 }
 
 // An interface that describes the properties a User model has.
 interface UserModel extends mongoose.Model<UserDocument> {
-  build(attrs: UserAttrs): UserDocument;
+  build(attrs: UserAttributes): UserDocument;
 }
 
 // An interface that describes the properties a User document has.
@@ -51,8 +51,8 @@ userSchema.pre('save', async function (done) {
   done();
 });
 
-userSchema.statics.build = (attrs: UserAttrs) => {
-  return new User(attrs);
+userSchema.statics.build = (attributes: UserAttributes) => {
+  return new User(attributes);
 };
 
 const User = mongoose.model<UserDocument, UserModel>('User', userSchema);
