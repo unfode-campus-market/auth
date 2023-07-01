@@ -9,10 +9,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - run: docker build -t itsmyduty/auth .
-    - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    
+    - name: Checkout main
+      uses: actions/checkout@v2
+
+    - name: Build Docker image
+      run: docker build -t itsmyduty/auth .
+
+    - name: Docker login
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       env:
         DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-    - run: docker push itsmyduty/auth
+    
+    - name: Push image to Docker Hub
+      run: docker push itsmyduty/auth
+
+    - name: Install doctl and log in
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{secrets.DIGITALOCEAN_ACCESS_TOKEN}}
+    
+    - name: Connect to K8s cluster
+      run: doctl kubernetes cluster kubeconfig save main
+    
+    - name: Restart K8s deployment to use the latest Docker image
+      run: kubectl rollout restart deployment auth-depl
